@@ -14,18 +14,18 @@
 #########################
 inputdir: "input"
 input_fn_pattern: "{sample}_{readpair}.fq.gz"
-samplesheet: ""           # Three-column samplesheet with sample_id,fastq_1,fastq_2 columns. Used instead of inputdir
-outdir: "output_dir"
-logdir: "output_dir/logs"
-dbdir: "databases"        # Databases will be downloaded to this dir
-report: "StaG_report-"    # Filename prefix for report file ("-{datetime}.html" automatically appended)
+samplesheet: "samplesheet.tsv"           # Three-column samplesheet with sample_id,fastq_1,fastq_2 columns. Used instead of inputdir
+outdir: "test_output_dir/alba_customer"
+logdir: "logs"
+dbdir: "/share/alba-data/databases"        # Databases will be downloaded to this dir
+report: "/home/bench-user/test_output_dir/alba_customer/StaG_report-"    # Filename prefix for report file ("-{datetime}.html" automatically appended)
 email: ""                 # Email to send status message after completed/failed run.
 
 
 #########################
 # Remote services
 #########################
-s3_endpoint_url: "https://s3.ki.se"  # Use https://s3.amazonaws.com for Amazon S3
+s3_endpoint_url: "https://s3.amazonaws.com"  # Use https://s3.amazonaws.com for Amazon S3
 keep_local: False                    # Keep local copies of remote input files, default False.
 
 
@@ -44,11 +44,11 @@ taxonomic_profile:
     kaiju: False
     kraken2: False
     krakenuniq: False
-    metaphlan: False
+    metaphlan: True
 strain_level_profiling:
     strainphlan: False    # Will also run metaphlan. Please make sure you've added bt2_db_dir and bt2_index under metaphlan settings.
 functional_profile:
-    humann: False         # Will also run metaphlan. Please make sure you've added bt2_db_dir and bt2_index under metaphlan settings.
+    humann: True         # Will also run metaphlan. Please make sure you've added bt2_db_dir and bt2_index under metaphlan settings.
 mappers:
     bbmap: False
     bowtie2: False
@@ -61,10 +61,10 @@ binning: False
 #########################
 fastp:
     extra: ""
-    keep_output: False       # StaG deletes fastp output files after host removal, set to True to keep them.
+    keep_output: True       # StaG deletes fastp output files after host removal, set to True to keep them.
 remove_host:
     kraken2:
-        db_path: ""              # [Required] Path to folder containing a Kraken2 database with host sequences (taxo.k2d, etc.)
+        db_path: "/share/alba-data/databases/kraken2_hg38"              # [Required] Path to folder containing a Kraken2 database with host sequences (taxo.k2d, etc.)
         confidence: 0.1          # Kraken2 confidence score, float in [0,1]
         extra: "--quick"         # Additional command line arguments to kraken2
         keep_kraken: False       # Keep the kraken files for host removal, set to False to remove them automatically.
@@ -99,14 +99,14 @@ kaiju:
     run_krona: True
 
 kraken2:
-    db: ""                   # [Required] Path to Kraken2 DB folder
+    db: "/share/alba-data/databases/kraken2_standard/"                   # [Required] Path to Kraken2 DB folder
     confidence: 0.1          # Kraken2 confidence score, float in [0,1]
     minimum_hit_groups: 2    # Integer, default 2
     extra: ""                # Extra command line arguments for kraken2 (do not add/change output files)
     keep_kraken: False       # Keep the kraken output files
     keep_kreport: True       # Keep the kreport output files
     run_krona: True
-    bracken:
+    bracken: 
         kmer_distrib: ""     # [Required for Bracken] Path to kmer_distrib file for Kraken2 DB specified above
         levels: "S G"        # Space-separated list of taxonomic levels to produce tables for (e.g. "F G S" for Family, Genus, Species)
         thresh: 10           # Threshold for minimum number of reads from Kraken
@@ -124,14 +124,14 @@ krakenuniq:
 
 
 metaphlan:
-    bt2_db_dir: ""           # [Required] Path to MetaPhlAn database dir
-    bt2_index: ""            # [Required] Name of MetaPhlAn database index
+    bt2_db_dir: "/share/alba-data/databases/metaphlan4"           # [Required] Path to MetaPhlAn database dir
+    bt2_index: "mpa_vOct22_CHOCOPhlAnSGB_202212"            # [Required] Name of MetaPhlAn database index
     extra: ""                # Extra command line arguments for MetaPhlAn e.g. "-t rel_ab_w_read_stats"
-    keep_bt2: False          # Keep the bowtie2 files
-    keep_sam: False          # Keep the sam files, set this to True if you want to run StrainPhlAn.
-    run_krona: True
+    keep_bt2: True          # Keep the bowtie2 files
+    keep_sam: True          # Keep the sam files, set this to True if you want to run StrainPhlAn.
+    run_krona: False
     heatmap:
-        create_plot: True        # Whether to create the MetaPhlAn heatmap plot, set to False to disable
+        create_plot: False        # Whether to create the MetaPhlAn heatmap plot, set to False to disable
         level: "Species"         # Taxononomic level: Kingdom, Phylum, Class, Order, Family, Genus, Species, or Strain
         topN: 50                 # Number of top taxa to include in heatmap.
         pseudocount: -1          # Negative value means to autocompute pseudocount
@@ -144,7 +144,7 @@ metaphlan:
 # Strain Level Profiling 
 #########################
 strainphlan:
-    clade_of_interest: ""    # [Required] e.g. s__Bifidobacterium_longum
+    clade_of_interest: "s__Bifidobacterium_longum"    # [Required] e.g. s__Bifidobacterium_longum
     mode: "accurate"
     extra: ""
 
@@ -152,9 +152,9 @@ strainphlan:
 # Functional profiling
 #########################
 humann:
-    nucleotide_db: ""        # [Required] Path to ChocoPhlAn DB directory.
-    protein_db: ""           # [Required] Path to protein database directory (typically UniRef90).
-    utility_db: ""           # [Required] Path to utility_mapping database.
+    nucleotide_db: "/share/alba-data/databases/chocophlan/"        # [Required] Path to ChocoPhlAn DB directory.
+    protein_db: "/share/alba-data/databases/uniref90_diamond/uniref"           # [Required] Path to protein database directory (typically UniRef90).
+    utility_db: "/share/alba-data/databases/utility_mapping/utility_mapping"           # [Required] Path to utility_mapping database.
     norm_method: "cpm"       # Normalization scheme: copies per million [cpm], relative abundance [relab]; default=[cpm].
     norm_mode: "community"   # Normalization mode, Normalize all levels by [community] total or [levelwise] totals; default=[community].
     extra: ""                # Extra command line arguments for humann e.g. --bypass-translated-search
