@@ -14,7 +14,7 @@
 #########################
 inputdir: "input"
 input_fn_pattern: "{sample}_{readpair}.fq.gz"
-samplesheet: "samplesheet.tsv"           # Three-column samplesheet with sample_id,fastq_1,fastq_2 columns. Used instead of inputdir
+samplesheet: "config/samplesheet.tsv"           # Three-column samplesheet with sample_id,fastq_1,fastq_2 columns. Used instead of inputdir
 outdir: "test_output_dir/alba_customer"
 logdir: "logs"
 dbdir: "/share/alba-data/databases"        # Databases will be downloaded to this dir
